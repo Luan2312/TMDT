@@ -27,6 +27,7 @@ class PostCatalogueService extends BaseService implements PostCatalogueServiceIn
     protected $routerRepository;
     protected $nestedset;
     protected $language;
+    protected $controllerName = 'PostCatalogue';
 
     public function __construct(
         PostCatalogueRepository $postCatalogueRepository,
@@ -43,65 +44,17 @@ class PostCatalogueService extends BaseService implements PostCatalogueServiceIn
 
     }
 
-    private function paginateSelect(){
-        return [
-            'post_catalogues.id',
-            'post_catalogues.publish',
-            'post_catalogues.level',
-            'post_catalogues.image',
-            'tb2.name',
-            'tb2.canonical',
-            'post_catalogues.order'
-        ];
-    }
-
-    private function createCatalogue($request){
-        $payload = $request->only($this->payload());
-
-        $payload['album'] = $this->formatAlbum($request);
-        $payload['user_id'] = Auth::id();
-        $post = $this->postCatalogueRepository->create($payload);
-        return $post;
-    }
-
-    private function updateLanguageForCatalogue($post, $request){
-        $payloadLanguages = $this->formatLanguagePayload($post, $request);
-        $post->languages()->detach([$this->language, $post->id]);
-        $language = $this->postCatalogueRepository->createPivot($post, $payloadLanguages, 'languages');
-
-        return $language;
-    }
-
-    private function formatLanguagePayload($post, $request){
-        $payloadLanguages = $request->only($this->payloadLanguage());
-        $payloadLanguages['canonical'] = Str::slug($payloadLanguages['canonical']);
-        $payloadLanguages['language_id'] = $this->language;
-        $payloadLanguages['post_catalogue_id'] = $post->id;
-        return $payloadLanguages;
-    }
-
-    private function updateRouter($post, $request){
-        $this->formatRouterpayload($post, $request);
-        $this->routerRepository->create($router);
-    }
-
-    private function formatRouterpayload($post, $request){
-        $router = [
-            'canonical' => $request->input('canonical'),
-            'module_id' => $post->id,
-            'controllers' => 'App\Http\Controller\Frontend\PostCatalogueController'
-        ];
-        return $router;
-    }
 
     public function paginate($request){
-
-        $condition['keyword'] = addslashes($request->input('keyword'));
-        $condition['publish'] = $request->integer('publish');
-        $condition['where'] = [
-            ['tb2.language_id', '=', $this->language]
-        ];
         $perpage = $request->integer('perpage');
+        $condition = [
+            'keyword' => addslashes($request->input('keyword')),
+            'publish' => $request->integer('publish'),
+            'where' => [
+                ['tb2.language_id', '=', $this->language]
+            ]
+        ];
+
         $postCatalogues = $this->postCatalogueRepository->pagination($this->paginateSelect(),
         $condition,
         $perpage,
@@ -120,11 +73,9 @@ class PostCatalogueService extends BaseService implements PostCatalogueServiceIn
             $post = $this->createCatalogue($request);
             if($post->id > 0){
                 $this->updateLanguageForCatalogue($post, $request);
-                $this->updateRouter($post, $request);
+                $this->createRouter($post, $request, $this->controllerName);
                 $this->nestedset();
             }
-
-
 
             DB::commit();
             return true;
@@ -133,20 +84,6 @@ class PostCatalogueService extends BaseService implements PostCatalogueServiceIn
             echo $e->getMessage();die();
             return false;
         }
-
-    }
-
-    private function payload(){
-        return ['parent_id', 'follow', 'publish','image', 'album'];
-    }
-    private function payloadLanguage(){
-        return  ['name',
-        'description',
-        'content',
-        'meta_title',
-        'meta_keyword',
-        'meta_description',
-        'canonical'];
 
     }
 
@@ -154,31 +91,10 @@ class PostCatalogueService extends BaseService implements PostCatalogueServiceIn
         DB::beginTransaction();
         try{
             $postCatalogues = $this->postCatalogueRepository->findById($id);
-            $payload = $request->only($this->payload());
-            if(isset($payload['album'])){
-                $payload['album'] = json_encode($payload['album']);
-            }
-
-            $post = $this->postCatalogueRepository->update($id, $payload);
+            $post = $this->updateCatalogue($postCatalogues, $request);
             if($post == TRUE){
-                $payload = $request->only($this->payloadLanguage());
-                $payload['language_id'] = $this->language;
-                $payload['post_catalogue_id'] = $id;
-                $postCatalogues->languages()->detach([$payload['language_id'], $id]);
-                $response = $this->postCatalogueRepository->createPivot($postCatalogues, $payload, 'languages');
-
-                $payloadRouter = [
-                    'canonical' => $payloadLanguages['canonical'],
-                    'module_id' => $postCatalogues->id,
-                    'controllers' => 'App\Http\Controller\Frontend\PostCatalogueController'
-                ];
-                $condition = [
-                    ['module_id','=', $id],
-                    ['controllers','=', 'App\Http\Controller\Frontend\PostCatalogueController'],
-                ];
-                $router = $this->routerRepository->findByCondition($condition);
-                $this->routerRepository->update($router->id, $payloadRouter);
-
+                $this->updateLanguageForCatalogue($postCatalogues, $request);
+                $this->updateRouter($postCatalogues, $request, $this->controllerName);
                 $this->nestedset();
             }
 
@@ -189,12 +105,6 @@ class PostCatalogueService extends BaseService implements PostCatalogueServiceIn
             echo $e->getMessage();die();
             return false;
         }
-    }
-
-    private function convertBirthdayDate($birthday = ''){
-        $carbonDate = Carbon::createFromFormat('Y-m-d', $birthday);
-        $birthday = $carbonDate->format('Y-m-d H:i:s');
-        return $birthday;
     }
 
     public function destroy($id){
@@ -242,6 +152,73 @@ class PostCatalogueService extends BaseService implements PostCatalogueServiceIn
             echo $e->getMessage();die();
             return false;
         }
+    }
+
+    private function paginateSelect(){
+        return [
+            'post_catalogues.id',
+            'post_catalogues.publish',
+            'post_catalogues.level',
+            'post_catalogues.image',
+            'tb2.name',
+            'tb2.canonical',
+            'post_catalogues.order'
+        ];
+    }
+
+    private function createCatalogue($request){
+        $payload = $request->only($this->payload());
+
+        $payload['album'] = $this->formatAlbum($request);
+        $payload['user_id'] = Auth::id();
+        $post = $this->postCatalogueRepository->create($payload);
+        return $post;
+    }
+
+    private function updateLanguageForCatalogue($post, $request){
+        $payloadLanguages = $this->formatLanguagePayload($post, $request);
+        $post->languages()->detach([$this->language, $post->id]);
+        $language = $this->postCatalogueRepository->createPivot($post, $payloadLanguages, 'languages');
+
+        return $language;
+    }
+
+    private function formatLanguagePayload($post, $request){
+        $payloadLanguages = $request->only($this->payloadLanguage());
+        $payloadLanguages['canonical'] = Str::slug($payloadLanguages['canonical']);
+        $payloadLanguages['language_id'] = $this->language;
+        $payloadLanguages['post_catalogue_id'] = $post->id;
+        return $payloadLanguages;
+    }
+
+    private function updateCatalogue($postCatalogues, $request){
+
+        $payload = $request->only($this->payload());
+        $payload['album'] = $this->formatAlbum($request);
+        $post = $this->postCatalogueRepository->update($postCatalogues->id, $payload);
+
+        return $post;
+    }
+
+    private function payload(){
+        return ['parent_id', 'follow', 'publish','image', 'album'];
+    }
+
+    private function payloadLanguage(){
+        return  ['name',
+        'description',
+        'content',
+        'meta_title',
+        'meta_keyword',
+        'meta_description',
+        'canonical'];
+
+    }
+
+    private function convertBirthdayDate($birthday = ''){
+        $carbonDate = Carbon::createFromFormat('Y-m-d', $birthday);
+        $birthday = $carbonDate->format('Y-m-d H:i:s');
+        return $birthday;
     }
 
     // private function changepostStatus($post, $value){

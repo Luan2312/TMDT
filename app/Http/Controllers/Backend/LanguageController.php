@@ -101,7 +101,7 @@ class LanguageController extends Controller
             \App::setLocale($language->canonical);
         };
         return redirect()->back();
-        
+
     }
 
     private function configData(){

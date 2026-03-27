@@ -19,14 +19,14 @@
                                 <div class="img-cover image-post">
                                     <img src="{{ $post->image }}" alt="{{ $post->image }}">
                                 </div>
-                                
+
                             </div>
                             <div class="main-info">
                                 <div class="name">
                                     <span class="maintitle">{{ $post->name }}</span>
                                 </div>
-                                
-                                
+
+
                                 <div class="catalogue">
                                     <span class="text-danger">Nhom hien thi: </span>
                                     @foreach ($post->post_catalogues as $val)
@@ -35,10 +35,10 @@
                                         @endforeach
                                     @endforeach
                                 </div>
-                                
+
                             </div>
                         </div>
-                        
+
                     </td>
                     <td>
                         <input type="text" name="order" class="form-control sort-order text-right" value="{{ $post->order }}" data-id="{{ $post->id }}" data-model="{{ $config['model'] }}">
