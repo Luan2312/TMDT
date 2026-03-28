@@ -19,7 +19,47 @@ return [
             'title' => 'Ten Nhom',
             ''
         ]
-
+    ],
+    'userCatalogue' => [
+        'index' => [
+            'title' => 'Quản Lý Nhóm thành viên',
+            'table' => 'Danh sách Nhóm thành viên'
+        ],
+        'create' => [
+            'title' => 'Thêm Mới Nhóm thành viên'
+        ],
+        'edit' => [
+            'title' => 'Cập nhật Nhóm thành viên'
+        ],
+        'delete' => [
+            'title' => 'Xóa Nhóm thành viên'
+        ],
+        'permission' => [
+            'title' => 'Cập nhật Quyền'
+        ],
+        'table' => [
+            'title' => 'Ten Nhom',
+            ''
+        ]
+    ],
+    'permission' => [
+        'index' => [
+            'title' => 'Quản Lý Quyền',
+            'table' => 'Danh sách Quyền'
+        ],
+        'create' => [
+            'title' => 'Thêm Mới Quyền'
+        ],
+        'edit' => [
+            'title' => 'Cập nhật Quyền'
+        ],
+        'delete' => [
+            'title' => 'Xóa Quyền'
+        ],
+        'table' => [
+            'title' => 'Ten Nhom',
+            ''
+        ]
     ],
     'parentId' => 'Chon danh muc cha',
     'parentNotice' => '*Chon Root neu khong co danh muc cha',

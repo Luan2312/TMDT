@@ -34,16 +34,19 @@ class UserCatalogueService implements UserCatalogueServiceInterface
 
     public function paginate($request){
 
-        $condition['keyword'] = addslashes($request->input('keyword'));
-        $condition['publish'] = $request->integer('publish');
+        $condition = [
+            'keyword' => addslashes($request->input('keyword')),
+            'publish' => $request->integer('publish'),
+        ];
         $perpage = $request->integer('perpage');
         $userCatalogues = $this->userCatalogueRepository->pagination($this->paginateSelect(),
-        $condition,
-        $perpage,
-        ['path' => 'user/catalogue/index'],
-        ['id', 'DESC'],
-        [],
-        ['users']);
+            $condition,
+            $perpage,
+            ['path' => 'user/catalogue/index'],
+            ['id', 'DESC'],
+            [],
+            ['users']
+        );
         return $userCatalogues;
     }
 
@@ -127,6 +130,23 @@ class UserCatalogueService implements UserCatalogueServiceInterface
         }
     }
 
+    public function setPermission($request){
+        DB::beginTransaction();
+        try{
+            $permissions = $request->input('permission');
+            foreach($permissions as $key => $val){
+                $userCatalogue = $this->userCatalogueRepository->findById($key);
+                $userCatalogue->permissions()->sync($val);
+            }
+            DB::commit();
+            return true;
+        }catch(\Exception $e){
+            DB::rollBack();
+            echo $e->getMessage();die();
+            return false;
+        }
+    }
+
     private function changeUserStatus($post, $value){
 
         DB::beginTransaction();
@@ -148,4 +168,6 @@ class UserCatalogueService implements UserCatalogueServiceInterface
             return false;
         }
     }
+
+
 }

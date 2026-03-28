@@ -1,4 +1,4 @@
-<form action="{{ route('user.catalogue.index') }}">
+<form action="{{ route('permission.index') }}">
     <div class="filter-wrapper">
         <div class="uk-flex uk-flex-middle uk-flex-space-between">
             <div class="perpage">
@@ -40,11 +40,7 @@
                             </span>
                         </div>
                     </div>
-                    <div class="uk-flex uk-flex-middle">
-                        <a href="{{ route('user.catalogue.permission') }}" class="btn btn-warning mr10"><i class="fa fa-key mr5"></i>Permission</a>
-                        <a href="{{ route('user.catalogue.create') }}" class="btn btn-danger"><i class="fa fa-plus mr5"></i>Add New Group</a>
-                    </div>
-
+                    <a href="{{ route('permission.create') }}" class="btn btn-danger"><i class="fa fa-plus mr5"></i>Add New Permission</a>
                 </div>
 
             </div>

@@ -50,8 +50,8 @@ class BaseRepository implements BaseRepositoryInterface
         return $model->fresh();
     }
 
-    public function all(){
-        return $this->model->all();
+    public function all(array $relation = []){
+        return $this->model->with($relation)->get();
     }
 
     public function findById(

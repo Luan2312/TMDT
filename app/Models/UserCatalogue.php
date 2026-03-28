@@ -9,9 +9,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
-class UserCatalogue extends Authenticatable
+use Illuminate\Database\Eloquent\Model;
+use App\Traits\QueryScopes;
+
+class UserCatalogue extends Model
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    use HasFactory, SoftDeletes, QueryScopes;
 
     /**
      * The attributes that are mass assignable.
@@ -28,5 +31,9 @@ class UserCatalogue extends Authenticatable
 
     public function users(){
         return $this->hasMany(User::class, 'user_catalogue_id', 'id');
+    }
+
+    public function permissions(){
+        return $this->belongsToMany(Language::class, 'user_catalogue_permission', 'user_catalogue_id', 'permission_id');
     }
 }

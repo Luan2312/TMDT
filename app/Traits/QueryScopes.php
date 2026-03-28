@@ -21,7 +21,7 @@ trait QueryScopes
     }
 
     public function scopeCustomWhere($query, $where = []){
-        if(count($where)){
+        if(!empty($where) && is_array($where)){
             foreach($where as $key => $val){
                 $query->where($val[0], $val[1], $val[2]);
             }
@@ -36,7 +36,7 @@ trait QueryScopes
             }
         }
         return $query;
-        
+
     }
 
     public function scopeRelationCount($query, $relation){

@@ -5,7 +5,7 @@ return [
         [
             'title' => 'QL Thành Viên',
             'icon' => 'fa fa-th-large',
-            'name' => ['user'],
+            'name' => ['user', 'permission'],
             'subModule' => [
                 [
                     'title' => 'QL Nhóm Thành Viên',
@@ -14,6 +14,10 @@ return [
                 [
                     'title' => 'QL Thành Viên',
                     'route' => 'user/index'
+                ],
+                [
+                    'title' => 'QL Quyền',
+                    'route' => 'permission/index'
                 ],
 
 
