@@ -25,7 +25,7 @@ class PermissionController extends Controller
     }
 
     public function index(Request $request){
-
+        $this->authorize('modules', 'permission.index');
         $permissions = $this->permissionService->paginate($request);
 
         $config = [
@@ -46,7 +46,7 @@ class PermissionController extends Controller
     }
 
     public function create(){
-
+        $this->authorize('modules', 'permission.create');
         $config = $this->configData();
         $config['seo'] = __('messages.permission');
         $config['method'] = 'create';
@@ -62,6 +62,7 @@ class PermissionController extends Controller
     }
 
     public function edit($id){
+        $this->authorize('modules', 'permission.update');
         $permissions = $this->permissionRepository->findById($id);
 
         $config = $this->configData();
@@ -79,6 +80,7 @@ class PermissionController extends Controller
     }
 
     public function delete($id){
+        $this->authorize('modules', 'permission.destroy');
         $permissions = $this->permissionRepository->findById($id);
         $config['seo'] = __('messages.permission');
         $template = 'backend.permission.delete';

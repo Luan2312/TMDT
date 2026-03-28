@@ -34,7 +34,7 @@ class UserCatalogueController extends Controller
     }
 
     public function index(Request $request){
-
+        $this->authorize('modules', 'user.catalogue.index');
         $userCatalogues = $this->userCatalogueService->paginate($request);
 
         $config = [
@@ -55,7 +55,7 @@ class UserCatalogueController extends Controller
     }
 
     public function create(){
-
+        $this->authorize('modules', 'user.catalogue.create');
         $config = [
             'css' => [
                 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css'
@@ -79,6 +79,7 @@ class UserCatalogueController extends Controller
     }
 
     public function edit($id){
+        $this->authorize('modules', 'user.catalogue.update');
         $userCatalogues = $this->userCatalogueRepository->findById($id);
 
         $config = [
@@ -104,6 +105,7 @@ class UserCatalogueController extends Controller
     }
 
     public function delete($id){
+        $this->authorize('modules', 'user.catalogue.destroy');
         $userCatalogues = $this->userCatalogueRepository->findById($id);
         $config['seo'] = config('apps.userCatalogue');
         $template = 'backend.user.catalogue.delete';
@@ -118,6 +120,7 @@ class UserCatalogueController extends Controller
     }
 
     public function permission(){
+        $this->authorize('modules', 'user.catalogue.permission');
         $userCatalogues = $this->userCatalogueRepository->all(['permissions']);
         $permissions = $this->permissionRepository->all();
         $config['seo'] = __('messages.userCatalogue');

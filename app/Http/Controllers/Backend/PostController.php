@@ -36,6 +36,7 @@ class PostController extends Controller
     }
 
     public function index(Request $request){
+        $this->authorize('modules', 'post.index');
 
         $posts = $this->postService->paginate($request);
 
@@ -57,7 +58,7 @@ class PostController extends Controller
     }
 
     public function create(){
-
+        $this->authorize('modules', 'post.create');
         $config = $this->configData();
         $config['seo'] = config('apps.post');
         $config['method'] = 'create';
@@ -78,6 +79,7 @@ class PostController extends Controller
     }
 
     public function edit($id){
+        $this->authorize('modules', 'post.update');
         $posts = $this->postRepository->getPostById($id, $this->language);
         $config = $this->configData();
         $config['seo'] = config('apps.post');
@@ -104,6 +106,7 @@ class PostController extends Controller
     }
 
     public function delete($id){
+        $this->authorize('modules', 'post.destroy');
         $posts = $this->postRepository->getPostById($id, $this->language);
         $config['seo'] = config('apps.post');
         $template = 'backend.post.post.delete';
@@ -111,7 +114,7 @@ class PostController extends Controller
     }
 
     public function destroy($id){
-        
+
         if($this->postService->destroy($id)){
             return redirect()->route('post.index')->with('success','Xóa nhóm thành công.');
         }
